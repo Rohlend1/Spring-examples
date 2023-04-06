@@ -1,5 +1,8 @@
 package ru.vlados.spring.config;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -16,5 +19,15 @@ public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationC
     @Override
     protected String[] getServletMappings() { //все запросы http посылаем на DispatcherServlet
         return new String[]{"/"};
+    }
+    @Override
+    public void onStartup(ServletContext aServletContext) throws ServletException {
+        super.onStartup(aServletContext);
+        registerHiddenFieldFilter(aServletContext);
+    }
+
+    private void registerHiddenFieldFilter(ServletContext aContext) {
+        aContext.addFilter("hiddenHttpMethodFilter",
+                new HiddenHttpMethodFilter()).addMappingForUrlPatterns(null ,true, "/*");
     }
 }
