@@ -27,7 +27,7 @@ public class DealershipController implements InitializingBean {
         cars.put("Tesla",3_000_000);
     }
     @GetMapping("")
-    public String deal(Model model){
+    public String deal(){
         return "dealer/dealer";
     }
     @GetMapping("/buy")
