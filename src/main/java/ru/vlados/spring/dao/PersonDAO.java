@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class PersonDAO {
     private int count_people = 1;
-    private List<Person> people;
+    private final List<Person> people;
     {
         people = new ArrayList<>();
         people.add(new Person(count_people++,"Tom"));

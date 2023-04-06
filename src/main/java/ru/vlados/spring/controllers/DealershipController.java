@@ -15,10 +15,10 @@ import java.util.Map;
 @Controller
 @RequestMapping("/dealer")
 public class DealershipController implements InitializingBean {
-    private Map<String,Integer> cars = new HashMap<>();
+    private final Map<String,Integer> cars = new HashMap<>();
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet(){
         cars.put("Porsche",10_000_000);
         cars.put("Mercedes",15_000_000);
         cars.put("BMW",8_000_000);
