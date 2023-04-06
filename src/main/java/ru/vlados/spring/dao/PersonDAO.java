@@ -8,7 +8,7 @@ import java.util.List;
 
 @Component
 public class PersonDAO {
-    private int count_people = 1;
+    private static int count_people = 1;
     private final List<Person> people;
     {
         people = new ArrayList<>();
@@ -22,5 +22,9 @@ public class PersonDAO {
     }
     public Person show(int id){
         return people.stream().filter(e -> e.getId() == id).findAny().orElse(null);
+    }
+    public void save(Person person){
+        person.setId(count_people++);
+        people.add(person);
     }
 }

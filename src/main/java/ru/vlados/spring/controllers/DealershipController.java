@@ -4,6 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -27,18 +28,20 @@ public class DealershipController implements InitializingBean {
     }
     @GetMapping("")
     public String deal(Model model){
-        model.addAttribute("dealer","huinya");
         return "dealer/dealer";
     }
     @GetMapping("/buy")
     public String buy(@RequestParam(value = "car",required = false) String car, Model model){
-        model.addAttribute("dealer","huinya");
         if(cars.containsKey(car)){
             model.addAttribute("price",cars.get(car));
             model.addAttribute("car",car);
             return "dealer/price";
         }
         return "dealer/dealer";
+    }
+    @ModelAttribute("dealer")
+    public String dealersName(){
+        return "cool";
     }
 
 }
