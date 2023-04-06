@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order</title>
+</head>
+<body>
+Your order is <p th:text="${order.getChosenCar()}"></p>
+              <p th:text="${cars.get(order.getChosenCar())}"></p>
+</body>
+</html>

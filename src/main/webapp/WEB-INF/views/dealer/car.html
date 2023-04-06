@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dealer</title>
+</head>
+<body>
+This is your dealership
+<a th:text="${dealer}"></a>
+<div th:each="car:${cars}">
+    Car: <a th:text="${car.key}"></a>
+    Price: <p th:text="${car.value}"></p>
+</div>
+
+
+</body>
+</html>

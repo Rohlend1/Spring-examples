@@ -14,7 +14,6 @@ public class PeopleController {
 
     private final PersonDAO personDAO;
 
-
     public PeopleController(PersonDAO personDAO) {
         this.personDAO = personDAO;
     }
@@ -36,8 +35,7 @@ public class PeopleController {
     }
 
     @GetMapping("/new")
-    public String newPerson(Model model){
-        model.addAttribute("person",new Person());
+    public String newPerson(@ModelAttribute("person")Person person){
         return "people/new";
     }
 
