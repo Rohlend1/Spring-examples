@@ -3,15 +3,12 @@ package ru.vlados.spring.dao;
 import org.springframework.stereotype.Component;
 import ru.vlados.spring.models.Order;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
 public class OrderDAO {
-    private static int count_orders;
+    private static int count_orders =1;
     private final List<Order> orders = new ArrayList<>();
     private final Map<String,Integer> cars = new HashMap<>();
 
@@ -40,5 +37,13 @@ public class OrderDAO {
             if(order.getId() == id) return order;
         }
         return null;
+    }
+    public void edit(Order order,int id){
+        Order updatedOrder = getOrder(id);
+        updatedOrder.setChosenCar(order.getChosenCar());
+        updatedOrder.setDate(order.getDate());
+    }
+    public void delete(int id){
+        orders.removeIf(e -> e.getId()==id);
     }
 }

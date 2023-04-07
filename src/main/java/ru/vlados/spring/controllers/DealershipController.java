@@ -1,9 +1,11 @@
 package ru.vlados.spring.controllers;
 
 
+import jakarta.validation.Valid;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.vlados.spring.dao.OrderDAO;
 import ru.vlados.spring.models.Order;
@@ -28,33 +30,54 @@ public class DealershipController {
     }
 
 
-
-
     @GetMapping()
-    public String deal(Model model){
+    public String deal(@ModelAttribute("order")Order order,Model model){
         model.addAttribute("orders",orderDAO.getOrders());
         return "dealer/car";
-    }
-    @GetMapping("/buy")
-    public String buy(@RequestParam(value = "car",required = false) String car, Model model){
-        if(orderDAO.getCars().containsKey(car)){
-            model.addAttribute("price",orderDAO.getCars().get(car));
-            model.addAttribute("car",car);
-            return "dealer/orderPage";
-        }
-        return "redirect:/dealer/car";
     }
     @ModelAttribute("dealer")
     public String dealersName(){
         return "cool";
     }
     @PostMapping()
-    public String createOrder(@ModelAttribute("order") Order order){
+    public String createOrder(@ModelAttribute("order")@Valid Order order,BindingResult bindingResult){
+        if(bindingResult.hasErrors()) {
+            return "dealer/car";
+        }
         orderDAO.add(order);
+        return "redirect:/dealer";
+    }
+    @GetMapping("/order/{id}")
+    public String getOrderForm(Model model,@PathVariable(value = "id") int id){
+        model.addAttribute("order",orderDAO.getOrder(id));
+        model.addAttribute("cars", orderDAO.getCars());
         return "/dealer/orderPage";
     }
-    @GetMapping("/order")
-    public String getOrderForm(@ModelAttribute("order")Order order){
-        return "/dealer/order";
+
+    @PatchMapping("/order/{id}")
+    public String editOrder(@ModelAttribute("order") @Valid Order order, BindingResult bindingResult, @PathVariable("id")int id, Model model){
+        Order originalOrder = orderDAO.getOrder(id);
+        if (originalOrder == null) {
+            return "dealer/orderPage";
+        }
+
+        if(bindingResult.hasErrors()) {
+            // передаем оригинальный заказ и ошибки в представление
+            model.addAttribute("order", originalOrder);
+            model.addAttribute("errors", bindingResult.getAllErrors());
+            return "dealer/orderPage";
+        }
+        // обновляем только выбранную машину и дату
+        originalOrder.setChosenCar(order.getChosenCar());
+        originalOrder.setDate(order.getDate());
+
+        orderDAO.edit(originalOrder, id);
+        return "redirect:/dealer";
+    }
+
+    @DeleteMapping("/order/{id}")
+    public String deleteOrder(@ModelAttribute("order") Order order, @PathVariable("id") int id){
+        orderDAO.delete(id);
+        return "redirect:/dealer";
     }
 }

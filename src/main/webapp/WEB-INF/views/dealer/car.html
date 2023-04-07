@@ -11,7 +11,21 @@ This is your dealership
     Car: <a th:text="${car.key}"></a>
     Price: <p th:text="${car.value}"></p>
 </div>
+<form th:method="POST" th:action="@{/dealer}" th:object="${order}">
+    <label for="chosenCar">Choose: </label>
+    <input type="text" th:field="*{chosenCar}" id="chosenCar"/>
+    <div style="color: red" th:if="${#fields.hasErrors('chosenCar')}" th:errors="*{chosenCar}"></div>
+
+    <br/>
+
+    <input type="submit" value="Order"/>
 
 
+</form>
+<hr/>
+<div th:each="order:${orders}">
+    <a th:href="@{dealer/order/{id}(id=${order.getId()})}" th:text="'Order number: '+${order.getId()}"></a>
+    Will be delivered: <a th:text="${#dates.format(order.getDate(),'dd.MM.yyyy HH:mm')}"></a>
+</div>
 </body>
 </html>

@@ -5,9 +5,11 @@
     <title>Человек</title>
 </head>
 <body>
-<p th:text="${person.getName()}"></p>
-<p th:text="${person.getId()}"></p>
+<a th:text="${person.getName()} + ', '+${person.getEmail()}+','"></a>
+id = <a th:text="${person.getId()}"></a>
+<br/>
 <a th:href="@{/people/{id}/edit(id=${person.getId()})}">Edit</a>
+
 
 <form th:method="DELETE" th:action="@{/people/{id}(id=${person.getId()})}">
     <input type="submit" value="Delete"/>
