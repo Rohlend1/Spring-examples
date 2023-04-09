@@ -8,9 +8,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.vlados.spring.dao.OrderDAO;
+import ru.vlados.spring.models.Car;
 import ru.vlados.spring.models.Order;
 
-import java.util.Map;
+import java.util.List;
 
 
 @Controller
@@ -25,10 +26,9 @@ public class DealershipController {
     }
 
     @ModelAttribute("cars")
-    public Map<String,Integer> map(){
+    public List<Car> map(){
         return orderDAO.getCars();
     }
-
 
     @GetMapping()
     public String deal(@ModelAttribute("order")Order order,Model model){
@@ -49,8 +49,10 @@ public class DealershipController {
     }
     @GetMapping("/order/{id}")
     public String getOrderForm(Model model,@PathVariable(value = "id") int id){
-        model.addAttribute("order",orderDAO.getOrder(id));
+        Order order = orderDAO.getOrder(id);
+        model.addAttribute("order", order);
         model.addAttribute("cars", orderDAO.getCars());
+        model.addAttribute("car",order.getChosenCar());
         return "/dealer/orderPage";
     }
 

@@ -19,10 +19,12 @@ public class Order {
     @FutureOrPresent(message = "Non valid date")
     private Date date;
 
-    public Order(int id, String chosenCar) {
+    private int price;
+
+    public Order(int id, String chosenCar, int price) {
         this.id = id;
         this.chosenCar = chosenCar;
-
+        this.price = price;
     }
 
     public Order() {
@@ -55,5 +57,13 @@ public class Order {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

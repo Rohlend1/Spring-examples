@@ -1,6 +1,8 @@
 package ru.vlados.spring.dao;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.vlados.spring.models.Car;
 import ru.vlados.spring.models.Order;
 
 import java.util.*;
@@ -8,42 +10,38 @@ import java.util.*;
 
 @Component
 public class OrderDAO {
-    private static int count_orders =1;
-    private final List<Order> orders = new ArrayList<>();
-    private final Map<String,Integer> cars = new HashMap<>();
 
-    {
-        cars.put("Porsche",10_000_000);
-        cars.put("Mercedes",15_000_000);
-        cars.put("BMW",8_000_000);
-        cars.put("Lada",1_000_000);
-        cars.put("Tesla",3_000_000);
+    private final JdbcTemplate jdbcTemplate;
+
+    public OrderDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Map<String, Integer> getCars() {
-        return cars;
+    public List<Car> getCars() {
+        return jdbcTemplate.query("select * from cars",new CarMapper());
     }
 
     public void add(Order order){
-        order.setId(count_orders++);
-        orders.add(order);
+        Car orderedCar = jdbcTemplate.query("select * from cars where model = ?"
+                ,new CarMapper(),order.getChosenCar()).stream().findAny().orElse(null);
+
+        jdbcTemplate.update("INSERT into orders(car,user_id,price,date) values(?,?,?,?)"
+                , Objects.requireNonNull(orderedCar).getId(),1
+                ,orderedCar.getPrice()
+                ,order.getDate());
     }
     public List<Order> getOrders(){
-        return orders;
+        return jdbcTemplate.query("select * from Orders",new OrderMapper(jdbcTemplate));
     }
 
     public Order getOrder(int id){
-        for(Order order : orders){
-            if(order.getId() == id) return order;
-        }
-        return null;
+        return jdbcTemplate.query("select * from Orders where id = ?",new OrderMapper(jdbcTemplate),id).stream().findAny().orElse(null);
     }
     public void edit(Order order,int id){
-        Order updatedOrder = getOrder(id);
-        updatedOrder.setChosenCar(order.getChosenCar());
-        updatedOrder.setDate(order.getDate());
+        jdbcTemplate.update("update orders set car = ?, date = ?, price = ? where id = ?",
+                order.getChosenCar(), order.getDate(), order.getPrice(),id);
     }
     public void delete(int id){
-        orders.removeIf(e -> e.getId()==id);
+        jdbcTemplate.update("delete from orders where id = ?",id);
     }
 }
