@@ -7,7 +7,6 @@ import org.springframework.validation.Validator;
 import ru.vlados.spring.dao.PersonDAO;
 import ru.vlados.spring.models.Person;
 
-import java.util.Optional;
 
 @Component
 public class PersonValidator implements Validator {
