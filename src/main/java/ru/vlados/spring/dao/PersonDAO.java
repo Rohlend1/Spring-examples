@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class PersonDAO {
@@ -30,13 +31,13 @@ public class PersonDAO {
                 .stream().findAny().orElse(null);
     }
     public void save(Person person){
-        jdbcTemplate.update("INSERT INTO Person(name,age,email) VALUES(?,?,?)",person.getName(),
-                person.getAge(),person.getEmail());
+        jdbcTemplate.update("INSERT INTO Person(name,age,email, address) VALUES(?,?,?,?)",person.getName(),
+                person.getAge(),person.getEmail(),person.getAddress());
     }
 
     public void update(Person person,int id){
-        jdbcTemplate.update("UPDATE Person SET name = ?, age = ?, email = ? WHERE id = ?"
-                ,person.getName(),person.getAge(),person.getEmail(),id);
+        jdbcTemplate.update("UPDATE Person SET name = ?, age = ?, email = ?, address=? WHERE id = ?"
+                ,person.getName(),person.getAge(),person.getEmail(),person.getAddress(),id);
     }
     public void delete(int id){
         jdbcTemplate.update("DELETE from person where id = ?",id);
@@ -46,8 +47,8 @@ public class PersonDAO {
        List<Person> people = create1000People();
        long start = System.currentTimeMillis();
        for(Person person : people){
-           jdbcTemplate.update("INSERT INTO Person(name,age,email) VALUES(?,?,?)"
-                   ,person.getId(),person.getName(),person.getAge(),person.getEmail());
+           jdbcTemplate.update("INSERT INTO Person(name,age,email,address) VALUES(?,?,?,?)"
+                   ,person.getId(),person.getName(),person.getAge(),person.getEmail(),person.getAddress());
        }
         System.out.println(System.currentTimeMillis()-start);
     }
@@ -55,13 +56,14 @@ public class PersonDAO {
     public void testBatchUpdate(){
         List<Person> people = create1000People();
         long start = System.currentTimeMillis();
-        jdbcTemplate.batchUpdate("INSERT INTO Person(name,age,email) VALUES(?,?,?)", new BatchPreparedStatementSetter() {
+        jdbcTemplate.batchUpdate("INSERT INTO Person(name,age,email,address) VALUES(?,?,?,?)", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
 
                 ps.setString(1,people.get(i).getName());
                 ps.setInt(2,people.get(i).getAge());
                 ps.setString(3,people.get(i).getEmail());
+                ps.setString(4,people.get(i).getAddress());
             }
 
             @Override
@@ -75,8 +77,13 @@ public class PersonDAO {
     private List<Person> create1000People() {
         List<Person> people = new ArrayList<>(1000);
         for(int i = 0; i < 1000;i++){
-            people.add(new Person(i,"name"+i,30,"test"+i+"@mail.ru"));
+            people.add(new Person(i,"name"+i,30,"test"+i+"@mail.ru","address"));
         }
         return people;
     }
+
+    public Optional<Person> show(String email, int id){
+        return jdbcTemplate.query("select * from Person where email = ? and id != ?",new PersonMapper(),email,id).stream().findAny();
+    }
+
 }
