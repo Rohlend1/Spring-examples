@@ -1,5 +1,6 @@
 package ru.vlados.spring.models;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -7,23 +8,32 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+@Entity
+@Table(name = "Item")
 public class Order {
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotEmpty(message = "Empty car")
-    @NotNull(message = "Car is null")
-    @Size(min = 3,message = "Minimum length is 3")
-    @Pattern(regexp = "Tesla|BMW|Mercedes|Lada|Porsche",message = "We have no this car")
-    private String chosenCar;
+
+    @ManyToOne
+    @JoinColumn(name = "car",referencedColumnName = "id")
+    private Car chosenCar;
 
     @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm")
     @FutureOrPresent(message = "Non valid date")
+    @Column(name = "date")
     private Date date;
 
+    @Column(name = "price")
     private int price;
 
-    public Order(int id, String chosenCar, int price) {
-        this.id = id;
-        this.chosenCar = chosenCar;
+    @ManyToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private Person owner;
+
+
+    public Order(int price) {
         this.price = price;
     }
 
@@ -43,11 +53,11 @@ public class Order {
         this.id = id;
     }
 
-    public String getChosenCar() {
+    public Car getChosenCar() {
         return chosenCar;
     }
 
-    public void setChosenCar(String chosenCar) {
+    public void setChosenCar(Car chosenCar) {
         this.chosenCar = chosenCar;
     }
 
@@ -65,5 +75,13 @@ public class Order {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public Person getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Person owner) {
+        this.owner = owner;
     }
 }

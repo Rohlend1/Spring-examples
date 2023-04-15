@@ -7,8 +7,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -18,12 +21,14 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
 import java.util.Objects;
+import java.util.Properties;
 
 
 @Configuration
 @ComponentScan("ru.vlados.spring")
 @EnableWebMvc
-@PropertySource("classpath:database.properties")
+@PropertySource("classpath:hibernate.properties")
+@EnableTransactionManagement
 public class SpringConfig implements WebMvcConfigurer{
     private final ApplicationContext applicationContext;
     private final Environment environment;
@@ -61,15 +66,39 @@ public class SpringConfig implements WebMvcConfigurer{
     public DataSource dataSource(){
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
 
-        driverManagerDataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("driver")));
-        driverManagerDataSource.setUrl(environment.getProperty("url"));
-        driverManagerDataSource.setUsername(environment.getProperty("username_value"));
-        driverManagerDataSource.setPassword(environment.getProperty("password"));
+        driverManagerDataSource.setDriverClassName(Objects.requireNonNull(environment.getRequiredProperty("hibernate.driver_class")));
+        driverManagerDataSource.setUrl(environment.getProperty("hibernate.connection.url"));
+        driverManagerDataSource.setUsername(environment.getProperty("hibernate.connection.username"));
+        driverManagerDataSource.setPassword(environment.getProperty("hibernate.connection.password"));
 
         return driverManagerDataSource;
     }
-    @Bean
-    public JdbcTemplate jdbcTemplate(){
-        return new JdbcTemplate(dataSource());
+//    @Bean
+//    public JdbcTemplate jdbcTemplate(){
+//        return new JdbcTemplate(dataSource());
+//    }
+
+    private Properties hibernateProperties(){
+        Properties properties = new Properties();
+        properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
+        properties.put("hibernate.show_sql",environment.getRequiredProperty("hibernate.show_sql"));
+        return properties;
     }
+
+    @Bean
+    public LocalSessionFactoryBean sessionFactoryBean(){
+        LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
+        localSessionFactoryBean.setDataSource(dataSource());
+        localSessionFactoryBean.setPackagesToScan("ru.vlados.spring.models");
+        localSessionFactoryBean.setHibernateProperties(hibernateProperties());
+        return localSessionFactoryBean;
+    }
+
+    @Bean
+    public PlatformTransactionManager hibernateTransactionManager(){
+        HibernateTransactionManager hibernateTransactionManager = new HibernateTransactionManager();
+        hibernateTransactionManager.setSessionFactory(sessionFactoryBean().getObject());
+        return hibernateTransactionManager;
+    }
+
 }
