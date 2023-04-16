@@ -7,6 +7,8 @@ import ru.vlados.spring.models.Order;
 import ru.vlados.spring.models.Person;
 import ru.vlados.spring.repositories.OrdersRepository;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -30,8 +32,26 @@ public class OrdersService {
     public List<Order> findByOwner(Person person){
         return ordersRepository.findByOwner(person);
     }
+    @Transactional
+    public void save(Order order){
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, 7);
+        order.setDate(calendar.getTime());
+        ordersRepository.save(order);
+    }
 
+    @Transactional
+    public void delete(int id){
+        ordersRepository.deleteById(id);
+    }
 
+    @Transactional
+    public void update(int id, Order order){
+        order.setId(id);
+        ordersRepository.save(order);
+    }
 
 
 }

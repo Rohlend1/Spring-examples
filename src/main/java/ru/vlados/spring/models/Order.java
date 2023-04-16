@@ -3,14 +3,16 @@ package ru.vlados.spring.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.vlados.spring.services.CarConverter;
 
 
-import java.util.Calendar;
+
 import java.util.Date;
 
 @Entity
 @Table(name = "Item")
 public class Order {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,11 +20,13 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "car",referencedColumnName = "id")
+    @Convert(converter = CarConverter.class)
     private Car chosenCar;
 
     @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm")
     @FutureOrPresent(message = "Non valid date")
     @Column(name = "date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     @Column(name = "price")
@@ -38,11 +42,6 @@ public class Order {
     }
 
     public Order() {
-        this.date = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(this.date);
-        calendar.add(Calendar.DATE, 7);
-        this.date = calendar.getTime();
     }
 
     public int getId() {

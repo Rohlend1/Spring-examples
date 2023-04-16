@@ -5,13 +5,14 @@
     <title>Order</title>
 </head>
 <body>
-Your order is <p th:text="${order.getChosenCar()}"></p>
+Your order is <p th:text="${order.getChosenCar().getModel()}"></p>
               <p th:text="${order.getPrice()}"></p>
 </body>
 <form th:method="PATCH" th:action="@{/dealer/order/{id}(id=${order.getId()})}" th:object="${order}">
     <label for="chosenCar">Enter new car</label>
-    <input type="text" th:field="*{chosenCar}" id="chosenCar"/>
-
+    <select th:field="*{chosenCar}" id="chosenCar">
+        <option th:each="car:${cars}" th:value="${car.getModel()}" th:text="${car.getModel()}"></option>
+    </select>
     <br/>
 
     <label for="date">Enter new date</label>
@@ -19,14 +20,12 @@ Your order is <p th:text="${order.getChosenCar()}"></p>
 
     <br/>
 
-<!--     Add this block to show error message if there are errors -->
+<!--     Блок с сообщениями об ошибках -->
     <div th:if="${errors}">
         <ul>
             <li style="color: red" th:each="error : ${errors}" th:text="${error.getDefaultMessage()}"></li>
         </ul>
     </div>
-<!--     end of error message block -->
-
     <input type="submit" value="Edit"/>
 </form>
 <form th:method="DELETE" th:action="@{/dealer/order/{id}(id=${order.getId()})}" th:object="${order}">

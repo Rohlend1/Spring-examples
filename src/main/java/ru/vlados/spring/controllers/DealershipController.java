@@ -2,14 +2,16 @@ package ru.vlados.spring.controllers;
 
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.vlados.spring.dao.OrderDAO;
 import ru.vlados.spring.models.Car;
 import ru.vlados.spring.models.Order;
+import ru.vlados.spring.services.CarService;
+import ru.vlados.spring.services.OrdersService;
 
 import java.util.List;
 
@@ -19,20 +21,23 @@ import java.util.List;
 @ComponentScan("ru.vlados.spring")
 public class DealershipController {
 
-    private final OrderDAO orderDAO;
+    private final OrdersService ordersService;
+    private final CarService carService;
 
-    public DealershipController(OrderDAO orderDAO){
-        this.orderDAO = orderDAO;
+    @Autowired
+    public DealershipController(OrdersService ordersService, CarService carService){
+        this.ordersService = ordersService;
+        this.carService = carService;
     }
 
     @ModelAttribute("cars")
     public List<Car> map(){
-        return orderDAO.getCars();
+        return carService.findAll();
     }
 
     @GetMapping()
     public String deal(@ModelAttribute("order")Order order,Model model){
-        model.addAttribute("orders",orderDAO.getOrders());
+        model.addAttribute("orders",ordersService.findAll());
         return "dealer/car";
     }
     @ModelAttribute("dealer")
@@ -40,25 +45,26 @@ public class DealershipController {
         return "cool";
     }
     @PostMapping()
-    public String createOrder(@ModelAttribute("order")@Valid Order order,BindingResult bindingResult){
+    public String createOrder(@ModelAttribute("order")@Valid Order order,BindingResult bindingResult,@RequestParam("chosenCar")String model){
+
         if(bindingResult.hasErrors()) {
             return "dealer/car";
         }
-        orderDAO.add(order);
+        order.setChosenCar(carService.findByName(model));
+        ordersService.save(order);
         return "redirect:/dealer";
     }
     @GetMapping("/order/{id}")
     public String getOrderForm(Model model,@PathVariable(value = "id") int id){
-        Order order = orderDAO.getOrder(id);
+        Order order = ordersService.findOne(id);
         model.addAttribute("order", order);
-        model.addAttribute("cars", orderDAO.getCars());
-        model.addAttribute("car",order.getChosenCar());
+        model.addAttribute("cars", carService.findAll());
         return "/dealer/orderPage";
     }
 
     @PatchMapping("/order/{id}")
     public String editOrder(@ModelAttribute("order") @Valid Order order, BindingResult bindingResult, @PathVariable("id")int id, Model model){
-        Order originalOrder = orderDAO.getOrder(id);
+        Order originalOrder = ordersService.findOne(id);
         if (originalOrder == null) {
             return "dealer/orderPage";
         }
@@ -69,17 +75,17 @@ public class DealershipController {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "dealer/orderPage";
         }
-        // обновляем только выбранную машину и дату
         originalOrder.setChosenCar(order.getChosenCar());
+        // обновляем только выбранную машину и дату
         originalOrder.setDate(order.getDate());
 
-        orderDAO.edit(originalOrder, id);
+        ordersService.update(id,originalOrder);
         return "redirect:/dealer";
     }
 
     @DeleteMapping("/order/{id}")
     public String deleteOrder(@ModelAttribute("order") Order order, @PathVariable("id") int id){
-        orderDAO.delete(id);
+        ordersService.delete(id);
         return "redirect:/dealer";
     }
 }
