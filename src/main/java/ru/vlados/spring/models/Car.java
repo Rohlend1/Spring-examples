@@ -44,6 +44,14 @@ public class Car {
         this.price = price;
     }
 
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
     public String getModel() {
         return model;
     }
