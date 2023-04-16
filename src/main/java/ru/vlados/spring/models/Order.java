@@ -36,6 +36,16 @@ public class Order {
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private Person owner;
 
+    @Transient
+    private String model;
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
 
     public Order(int price) {
         this.price = price;
@@ -57,6 +67,7 @@ public class Order {
     }
 
     public void setChosenCar(Car chosenCar) {
+        System.out.println("Ошибка в сеттере");
         this.chosenCar = chosenCar;
     }
 

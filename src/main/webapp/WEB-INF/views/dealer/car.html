@@ -12,11 +12,11 @@ This is your dealership
     Price: <p th:text="${car.getPrice()}"></p>
 </div>
 <form th:method="POST" th:action="@{/dealer}" th:object="${order}">
-    <label for="chosenCar">Enter new car</label>
-    <select  th:field="*{chosenCar}" id="chosenCar">
+    <label for="model">Enter new car</label>
+    <select  th:field="*{model}" id="model">
         <option th:each="car:${cars}" th:value="${car.model}" th:text="${car.getModel()}"></option>
     </select>
-    <div style="color: red" th:if="${#fields.hasErrors('chosenCar')}" th:errors="*{chosenCar}"></div>
+    <div style="color: red" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></div>
 
     <br/>
 

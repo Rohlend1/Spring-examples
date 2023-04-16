@@ -45,12 +45,13 @@ public class DealershipController {
         return "cool";
     }
     @PostMapping()
-    public String createOrder(@ModelAttribute("order")@Valid Order order,BindingResult bindingResult,@RequestParam("chosenCar")String model){
-
+    public String createOrder(@ModelAttribute("order")@Valid Order order,BindingResult bindingResult){
         if(bindingResult.hasErrors()) {
             return "dealer/car";
         }
-        order.setChosenCar(carService.findByName(model));
+        Car car = carService.findByName(order.getModel());
+        order.setChosenCar(car);
+        order.setPrice(car.getPrice());
         ordersService.save(order);
         return "redirect:/dealer";
     }
@@ -75,7 +76,9 @@ public class DealershipController {
             model.addAttribute("errors", bindingResult.getAllErrors());
             return "dealer/orderPage";
         }
-        originalOrder.setChosenCar(order.getChosenCar());
+        Car car = carService.findByName(order.getModel());
+        order.setChosenCar(car);
+        order.setPrice(car.getPrice());
         // обновляем только выбранную машину и дату
         originalOrder.setDate(order.getDate());
 
